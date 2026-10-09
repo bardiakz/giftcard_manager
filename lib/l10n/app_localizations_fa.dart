@@ -158,6 +158,18 @@ class AppLocalizationsFa extends AppLocalizations {
   String get languageEn => 'English';
 
   @override
+  String get theme => 'پوسته';
+
+  @override
+  String get themeSystem => 'سیستم';
+
+  @override
+  String get themeLight => 'روشن';
+
+  @override
+  String get themeDark => 'تاریک';
+
+  @override
   String get iranUnit => 'واحد پول ایران';
 
   @override

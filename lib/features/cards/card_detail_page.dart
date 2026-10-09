@@ -218,8 +218,9 @@ class _History extends ConsumerWidget {
             return ListTile(
               contentPadding: EdgeInsets.zero,
               leading: CircleAvatar(
-                backgroundColor: scheme.surfaceContainerHighest,
-                child: Icon(icon(e.type), size: 20, color: muted),
+                backgroundColor: scheme.secondaryContainer,
+                child: Icon(icon(e.type),
+                    size: 20, color: muted ?? scheme.onSecondaryContainer),
               ),
               title: Text(
                 e.note.isEmpty
@@ -237,7 +238,9 @@ class _History extends ConsumerWidget {
                       fontWeight: FontWeight.w600,
                       color: voided
                           ? muted
-                          : (e.delta >= 0 ? Colors.green.shade600 : null),
+                          : (e.delta >= 0 ? (Theme.of(context).brightness == Brightness.dark
+                              ? Colors.green.shade300
+                              : Colors.green.shade800) : null),
                     ),
                   ),
                   if (canReverse(e, reversed))
@@ -364,7 +367,8 @@ class _SecretsPanelState extends ConsumerState<SecretsPanel> {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
+        color: scheme.surfaceContainerHigh,
+        border: Border.all(color: scheme.outlineVariant),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(

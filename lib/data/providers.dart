@@ -18,6 +18,7 @@ class Settings {
   const Settings({
     this.language = 'system',
     this.iranUnit,
+    this.themeMode = 'system',
     this.appLock = false,
     this.maskBalances = false,
   });
@@ -30,17 +31,22 @@ class Settings {
   final bool appLock;
   final bool maskBalances;
 
+  /// 'system' | 'light' | 'dark'
+  final String themeMode;
+
   Settings copyWith({
     String? language,
     IranUnit? iranUnit,
     bool? appLock,
     bool? maskBalances,
+    String? themeMode,
   }) =>
       Settings(
         language: language ?? this.language,
         iranUnit: iranUnit ?? this.iranUnit,
         appLock: appLock ?? this.appLock,
         maskBalances: maskBalances ?? this.maskBalances,
+        themeMode: themeMode ?? this.themeMode,
       );
 }
 
@@ -55,6 +61,7 @@ class SettingsNotifier extends Notifier<Settings> {
       iranUnit: IranUnit.values.where((e) => e.name == u).firstOrNull,
       appLock: _p.getBool('app_lock') ?? false,
       maskBalances: _p.getBool('mask_balances') ?? false,
+      themeMode: _p.getString('theme_mode') ?? 'system',
     );
   }
 
@@ -76,6 +83,11 @@ class SettingsNotifier extends Notifier<Settings> {
   void setMaskBalances(bool v) {
     _p.setBool('mask_balances', v);
     state = state.copyWith(maskBalances: v);
+  }
+
+  void setThemeMode(String v) {
+    _p.setString('theme_mode', v);
+    state = state.copyWith(themeMode: v);
   }
 }
 

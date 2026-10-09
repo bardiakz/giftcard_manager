@@ -69,9 +69,9 @@ class _JalaliPickerDialogState extends State<_JalaliPickerDialog> {
       content: Row(
         children: [
           Expanded(
-            child: DropdownButton<int>(
-              isExpanded: true,
-              value: _y.clamp(years.first, years.last).toInt(),
+            child: DropdownButtonFormField<int>(
+              key: ValueKey('y$_y'),
+              initialValue: _y.clamp(years.first, years.last).toInt(),
               items: [
                 for (final y in years)
                   DropdownMenuItem(
@@ -83,8 +83,9 @@ class _JalaliPickerDialogState extends State<_JalaliPickerDialog> {
           const SizedBox(width: 8),
           Expanded(
             flex: 2,
-            child: DropdownButton<int>(
-              value: _m,
+            child: DropdownButtonFormField<int>(
+              key: ValueKey('m$_m'),
+              initialValue: _m,
               isExpanded: true,
               items: [
                 for (var m = 1; m <= 12; m++)
@@ -95,9 +96,9 @@ class _JalaliPickerDialogState extends State<_JalaliPickerDialog> {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: DropdownButton<int>(
-              isExpanded: true,
-              value: day,
+            child: DropdownButtonFormField<int>(
+              key: ValueKey('d$_y-$_m-$day'),
+              initialValue: day,
               items: [
                 for (var d = 1; d <= _daysInMonth; d++)
                   DropdownMenuItem(value: d, child: Text(toFaDigits('$d'))),

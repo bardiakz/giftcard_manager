@@ -43,6 +43,25 @@ class SettingsPage extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
+            child: Text(l.theme, style: text.titleSmall),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<String>(
+                segments: [
+                  ButtonSegment(value: 'system', label: Text(l.themeSystem)),
+                  ButtonSegment(value: 'light', label: Text(l.themeLight)),
+                  ButtonSegment(value: 'dark', label: Text(l.themeDark)),
+                ],
+                selected: {s.themeMode},
+                onSelectionChanged: (v) => n.setThemeMode(v.first),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
             child: Text(l.iranUnit, style: text.titleSmall),
           ),
           Padding(

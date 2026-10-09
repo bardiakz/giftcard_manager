@@ -43,6 +43,13 @@ ThemeData _theme(Brightness brightness) {
     useMaterial3: true,
     colorScheme: scheme,
     fontFamily: 'Vazirmatn',
+    scaffoldBackgroundColor: scheme.surface,
+    appBarTheme: AppBarTheme(
+      backgroundColor: scheme.surface,
+      foregroundColor: scheme.onSurface,
+      surfaceTintColor: Colors.transparent,
+    ),
+    dividerTheme: DividerThemeData(color: scheme.outlineVariant),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(),
     ),
@@ -56,6 +63,7 @@ class GiftCardApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final lang = ref.watch(settingsProvider.select((s) => s.language));
+    final mode = ref.watch(settingsProvider.select((s) => s.themeMode));
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
@@ -74,6 +82,11 @@ class GiftCardApp extends ConsumerWidget {
       },
       theme: _theme(Brightness.light),
       darkTheme: _theme(Brightness.dark),
+      themeMode: switch (mode) {
+        'light' => ThemeMode.light,
+        'dark' => ThemeMode.dark,
+        _ => ThemeMode.system,
+      },
       builder: (context, child) =>
           LockGate(child: child ?? const SizedBox.shrink()),
     );

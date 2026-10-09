@@ -22,7 +22,13 @@
   "spend": "Record purchase",
   "topUp": "Top up",
   "balanceAfter": "Balance after: {amount}",
-  "@balanceAfter": { "placeholders": { "amount": { "type": "String" } } },
+  "@balanceAfter": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "spendAll": "Spend all",
   "noteOptional": "Note (optional)",
   "history": "History",
@@ -40,7 +46,13 @@
   "hide": "Hide",
   "copied": "Copied",
   "hidesIn": "Hides in {seconds}s",
-  "@hidesIn": { "placeholders": { "seconds": { "type": "String" } } },
+  "@hidesIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
   "authReason": "Verify it's you to open the app",
   "revealReason": "Verify it's you to see card details",
   "unlockTitle": "App locked",
@@ -50,6 +62,10 @@
   "languageSystem": "System",
   "languageFa": "فارسی",
   "languageEn": "English",
+  "theme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
   "iranUnit": "Iranian currency unit",
   "toman": "Toman",
   "rial": "Rial",
@@ -61,9 +77,21 @@
   "expired": "Expired",
   "expiresToday": "Expires today",
   "expiresInDays": "{days} days left",
-  "@expiresInDays": { "placeholders": { "days": { "type": "String" } } },
+  "@expiresInDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "expiresOn": "Expires {date}",
-  "@expiresOn": { "placeholders": { "date": { "type": "String" } } },
+  "@expiresOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "privacyNote": "Everything stays on this device. No account, no internet, no ads.",
   "search": "Search",
   "fieldRequired": "This field is required",
