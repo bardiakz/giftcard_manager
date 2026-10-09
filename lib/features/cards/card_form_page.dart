@@ -8,6 +8,7 @@ import '../../core/auth.dart';
 import '../../core/format.dart';
 import '../../core/money.dart';
 import '../../data/providers.dart';
+import 'currency_picker.dart';
 import 'wallet_card.dart';
 
 const _jalaliMonths = [
@@ -244,19 +245,28 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
                         (v == null || v.trim().isEmpty) ? l.fieldRequired : null,
                   ),
                   gap,
-                  DropdownButtonFormField<Currency>(
-                    initialValue: _currency,
-                    isExpanded: true,
-                    decoration: InputDecoration(labelText: l.currency),
-                    items: [
-                      for (final c in Currency.all)
-                        DropdownMenuItem(
-                          value: c,
-                          child: Text('${c.code} · ${c.name(fa)}'),
-                        ),
-                    ],
-                    onChanged:
-                        _editing ? null : (v) => setState(() => _currency = v!),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(4),
+                    onTap: _editing
+                        ? null
+                        : () async {
+                            final c = await pickCurrency(context, _currency);
+                            if (c != null) setState(() => _currency = c);
+                          },
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: l.currency,
+                        enabled: !_editing,
+                        suffixIcon: _editing
+                            ? null
+                            : const Icon(Icons.arrow_drop_down),
+                      ),
+                      child: Text(
+                        '${_currency.code} · ${_currency.name(fa)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ),
                   if (_currency.isIranian) ...[
                     gap,

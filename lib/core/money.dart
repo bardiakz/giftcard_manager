@@ -1,3 +1,4 @@
+import 'currency_table.dart';
 import 'format.dart';
 
 /// How Iranian amounts are displayed. Amounts are always *stored* in Rial.
@@ -8,38 +9,63 @@ class Currency {
     this.code,
     this.digits,
     this.symbol,
-    this.unitFa,
-    this.nameFa,
     this.nameEn,
-  );
+    this.nameFa, {
+    String? unitFa,
+  }) : unitFa = unitFa ?? nameFa;
 
   final String code;
 
-  /// Number of minor-unit digits (cents). IRR has none.
+  /// Number of minor-unit digits (cents). IRR/JPY have none, KWD has three.
   final int digits;
+
+  /// Symbol used in English ("$"); equals the ISO code when there is no
+  /// unambiguous symbol.
   final String symbol;
-  final String unitFa;
-  final String nameFa;
   final String nameEn;
+  final String nameFa;
+
+  /// Label shown after the amount in Persian ("دلار").
+  final String unitFa;
 
   bool get isIranian => code == 'IRR';
   String name(bool fa) => fa ? nameFa : nameEn;
 
+  @override
+  bool operator ==(Object other) => other is Currency && other.code == code;
+
+  @override
+  int get hashCode => code.hashCode;
+
   static const irr = Currency(
-      'IRR', 0, '', '', 'ایران (تومان / ریال)', 'Iran (Toman / Rial)');
-  static const usd = Currency('USD', 2, r'$', 'دلار', 'دلار آمریکا', 'US Dollar');
-  static const eur = Currency('EUR', 2, '€', 'یورو', 'یورو', 'Euro');
-  static const gbp =
-      Currency('GBP', 2, '£', 'پوند', 'پوند انگلیس', 'British Pound');
-  static const tryLira =
-      Currency('TRY', 2, '₺', 'لیر', 'لیر ترکیه', 'Turkish Lira');
-  static const aed =
-      Currency('AED', 2, 'AED ', 'درهم', 'درهم امارات', 'UAE Dirham');
+      'IRR', 0, '', 'Iran (Toman / Rial)', 'ایران (تومان / ریال)');
+  static const usd =
+      Currency('USD', 2, r'$', 'US Dollar', 'دلار آمریکا', unitFa: 'دلار');
 
-  static const all = [irr, usd, eur, gbp, tryLira, aed];
+  /// IRR and USD first, then the rest of the ISO table.
+  static final List<Currency> all = [irr, usd, ..._fromTable(kCurrencyTable)];
+  static final Map<String, Currency> _byCode = {for (final c in all) c.code: c};
 
-  static Currency byCode(String code) =>
-      all.firstWhere((c) => c.code == code, orElse: () => irr);
+  static Currency byCode(String code) => _byCode[code] ?? irr;
+
+  static List<Currency> _fromTable(String table) {
+    final out = <Currency>[];
+    for (final raw in table.split('\n')) {
+      final line = raw.trim();
+      if (line.isEmpty) continue;
+      final p = line.split('|');
+      final code = p[0];
+      out.add(Currency(
+        code,
+        int.parse(p[1]),
+        p[2].isEmpty ? code : p[2],
+        p[3],
+        p[4],
+        unitFa: (p.length > 5 && p[5].isNotEmpty) ? p[5] : null,
+      ));
+    }
+    return out;
+  }
 }
 
 /// Formats minor-unit integers for display.
@@ -88,7 +114,9 @@ class MoneyFormat {
     final n = number(minor, c);
     final u = unitLabel(c);
     if (c.isIranian || fa) return '$sign$n $u';
-    return '$sign$u$n';
+    // Letter-only labels (e.g. "KWD") need a space; symbols ("$") don't.
+    final gap = RegExp(r'[A-Za-z]$').hasMatch(u) ? ' ' : '';
+    return '$sign$u$gap$n';
   }
 }
 

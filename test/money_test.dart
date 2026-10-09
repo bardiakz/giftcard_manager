@@ -28,6 +28,41 @@ void main() {
     });
   });
 
+  group('currency table', () {
+    test('codes are unique and the common ones exist', () {
+      final codes = Currency.all.map((c) => c.code).toList();
+      expect(codes.toSet().length, codes.length);
+      expect(codes.length, greaterThan(120));
+      for (final c in ['IRR', 'USD', 'EUR', 'GBP', 'JPY', 'KWD', 'CAD', 'AED']) {
+        expect(codes, contains(c));
+      }
+    });
+
+    test('minor digits follow ISO 4217', () {
+      expect(Currency.byCode('JPY').digits, 0);
+      expect(Currency.byCode('KWD').digits, 3);
+      expect(Currency.byCode('EUR').digits, 2);
+    });
+
+    test('lookup is stable and equal by code', () {
+      expect(Currency.byCode('USD'), Currency.usd);
+      expect(Currency.byCode('EUR'), Currency.byCode('EUR'));
+    });
+
+    test('formatting: symbols attach, codes get a space', () {
+      expect(enToman.format(1250, Currency.byCode('JPY')), '¥1,250');
+      expect(enToman.format(12345, Currency.byCode('KWD')), 'KWD 12.345');
+      expect(enToman.format(1250, Currency.byCode('EUR')), '€12.50');
+      expect(faToman.format(1250, Currency.byCode('GBP')), '۱۲٫۵۰ پوند');
+    });
+
+    test('parsing respects the currency decimals', () {
+      expect(parseInput('1500', Currency.byCode('JPY'), IranUnit.toman), 1500);
+      expect(parseInput('1.5', Currency.byCode('JPY'), IranUnit.toman), isNull);
+      expect(parseInput('1.234', Currency.byCode('KWD'), IranUnit.toman), 1234);
+    });
+  });
+
   group('parseInput', () {
     test('accepts Persian digits and separators', () {
       expect(parseInput('۱۲٬۵۰۰', Currency.irr, IranUnit.toman), 125000);
