@@ -5,6 +5,7 @@ import 'package:giftcard_manager/l10n/app_localizations.dart';
 
 import '../../core/auth.dart';
 import '../../core/format.dart';
+import '../../core/input_formatters.dart';
 import '../../core/money.dart';
 import '../../data/providers.dart';
 import 'currency_picker.dart';
@@ -86,6 +87,18 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
     });
   }
 
+  /// Decimal digits allowed when typing an amount. Iranian amounts are typed
+  /// as whole Toman/Rial.
+  int _decimalsFor(Currency c) => c.isIranian ? 0 : c.digits;
+
+  /// Re-applies the separators after the currency (and so the allowed
+  /// decimals) changed.
+  void _reformatAmount(bool fa) {
+    final f =
+        AmountInputFormatter(decimals: _decimalsFor(_currency), persian: fa);
+    _amount.value = f.formatEditUpdate(TextEditingValue.empty, _amount.value);
+  }
+
   Future<void> _save(IranUnit unit) async {
     if (!_form.currentState!.validate()) return;
     setState(() => _saving = true);
@@ -148,7 +161,10 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
                         ? null
                         : () async {
                             final c = await pickCurrency(context, _currency);
-                            if (c != null) setState(() => _currency = c);
+                            if (c != null) {
+                              setState(() => _currency = c);
+                              _reformatAmount(fa);
+                            }
                           },
                     child: InputDecorator(
                       decoration: InputDecoration(
@@ -186,8 +202,12 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
                     gap,
                     TextFormField(
                       controller: _amount,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: TextInputType.numberWithOptions(
+                          decimal: _decimalsFor(_currency) > 0),
+                      inputFormatters: [
+                        AmountInputFormatter(
+                            decimals: _decimalsFor(_currency), persian: fa),
+                      ],
                       decoration: InputDecoration(
                         labelText: l.startingCredit,
                         suffixText: fmt.unitLabel(_currency).trim(),
