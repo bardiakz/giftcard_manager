@@ -125,6 +125,24 @@ MoneyFormat moneyFormatOf(BuildContext context, WidgetRef ref) {
 class CardsNotifier extends AsyncNotifier<List<CardView>> {
   @override
   Future<List<CardView>> build() => ref.watch(dbProvider).cardViews();
+
+  /// Applies a new order right away (so the list doesn't jump back while the
+  /// database write finishes), then saves it. [ids] is the full order.
+  Future<void> reorder(List<String> ids) async {
+    final current = state.valueOrNull;
+    if (current == null) return;
+    final byId = {for (final v in current) v.card.id: v};
+    state = AsyncData([
+      for (final id in ids)
+        if (byId[id] != null) byId[id]!,
+      ...current.where((v) => !ids.contains(v.card.id)),
+    ]);
+    try {
+      await ref.read(dbProvider).reorderCards(ids);
+    } catch (_) {
+      ref.invalidateSelf(); // fall back to what is really stored
+    }
+  }
 }
 
 final cardsProvider =
@@ -194,6 +212,9 @@ class CardActions {
     await _db.deleteCard(id);
     _touch();
   }
+
+  Future<void> reorder(List<String> ids) =>
+      _ref.read(cardsProvider.notifier).reorder(ids);
 
   Future<Entry> addEntry(
     String cardId,

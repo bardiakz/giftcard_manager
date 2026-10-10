@@ -62,6 +62,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'This card and its whole history will be permanently deleted.';
 
   @override
+  String get moveUp => 'Move up';
+
+  @override
+  String get moveDown => 'Move down';
+
+  @override
+  String get moreOptions => 'More options';
+
+  @override
   String get balance => 'Balance';
 
   @override

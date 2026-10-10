@@ -61,6 +61,15 @@ class AppLocalizationsFa extends AppLocalizations {
   String get deleteCardBody => 'کارت و تمام تاریخچه‌اش برای همیشه حذف می‌شود.';
 
   @override
+  String get moveUp => 'انتقال به بالا';
+
+  @override
+  String get moveDown => 'انتقال به پایین';
+
+  @override
+  String get moreOptions => 'گزینه‌های بیشتر';
+
+  @override
   String get balance => 'موجودی';
 
   @override

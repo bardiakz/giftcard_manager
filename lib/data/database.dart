@@ -23,7 +23,7 @@ class AppDatabase {
     final cipher = await FieldCipher.load();
     final db = await openDatabase(
       p.join(await getDatabasesPath(), 'giftcards.db'),
-      version: 2,
+      version: 3,
       onConfigure: (d) => d.execute('PRAGMA foreign_keys = ON'),
       onCreate: (d, _) async {
         await d.execute('''
@@ -36,6 +36,7 @@ class AppDatabase {
             number_enc TEXT NOT NULL DEFAULT '',
             pin_enc TEXT NOT NULL DEFAULT '',
             calendar TEXT NOT NULL DEFAULT 'gregorian',
+            sort_order INTEGER NOT NULL DEFAULT 0,
             created_at INTEGER NOT NULL
           )''');
         await d.execute('''
@@ -61,6 +62,15 @@ class AppDatabase {
           await d.execute(
               "ALTER TABLE cards ADD COLUMN calendar TEXT NOT NULL DEFAULT 'gregorian'");
         }
+        if (oldVersion < 3) {
+          await d.execute(
+              'ALTER TABLE cards ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0');
+          // Keep today's order: newest first.
+          await d.execute('''
+            UPDATE cards SET sort_order = (
+              SELECT COUNT(*) FROM cards c2 WHERE c2.created_at > cards.created_at
+            )''');
+        }
       },
     );
     return AppDatabase._(db, cipher);
@@ -79,7 +89,7 @@ class AppDatabase {
       FROM cards c
       LEFT JOIN entries e ON e.card_id = c.id
       GROUP BY c.id
-      ORDER BY c.created_at DESC''');
+      ORDER BY c.sort_order ASC, c.created_at DESC''');
     return [
       for (final r in rows)
         CardView(
@@ -129,6 +139,10 @@ class AppDatabase {
     final pinEnc = await _cipher.encrypt(pin);
     final now = DateTime.now();
     await _db.transaction((t) async {
+      // New cards go to the top of the list.
+      final top = await t
+          .rawQuery('SELECT COALESCE(MIN(sort_order), 0) - 1 AS o FROM cards');
+      final order = (top.first['o']! as num).toInt();
       await t.insert('cards', {
         'id': id,
         'name': name,
@@ -136,6 +150,7 @@ class AppDatabase {
         'color': colorIndex,
         'expiry': expiry?.millisecondsSinceEpoch,
         'calendar': calendar,
+        'sort_order': order,
         'number_enc': numberEnc,
         'pin_enc': pinEnc,
         'created_at': now.millisecondsSinceEpoch,
@@ -178,6 +193,16 @@ class AppDatabase {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  /// Stores the given card order (first id = top of the list).
+  Future<void> reorderCards(List<String> ids) async {
+    await _db.transaction((t) async {
+      for (var i = 0; i < ids.length; i++) {
+        await t.update('cards', {'sort_order': i},
+            where: 'id = ?', whereArgs: [ids[i]]);
+      }
+    });
   }
 
   Future<void> deleteCard(String id) =>

@@ -200,6 +200,24 @@ abstract class AppLocalizations {
   /// **'This card and its whole history will be permanently deleted.'**
   String get deleteCardBody;
 
+  /// No description provided for @moveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get moveUp;
+
+  /// No description provided for @moveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get moveDown;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get moreOptions;
+
   /// No description provided for @balance.
   ///
   /// In en, this message translates to:

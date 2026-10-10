@@ -11,66 +11,12 @@ import '../../core/format.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
 import 'amount_sheet.dart';
+import 'card_dialogs.dart';
 import 'wallet_card.dart';
 
 class CardDetailPage extends ConsumerWidget {
   const CardDetailPage({super.key, required this.id});
   final String id;
-
-  Future<void> _record(
-    BuildContext context,
-    CardActions actions,
-    CardView view,
-    AmountMode mode,
-  ) async {
-    final l = AppLocalizations.of(context)!;
-    final entryId = await showAmountSheet(context, view, mode);
-    if (entryId == null || !context.mounted) return;
-    final messenger = ScaffoldMessenger.of(context);
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-              mode == AmountMode.spend ? l.spendRecorded : l.topUpRecorded),
-          action: SnackBarAction(
-            label: l.undo,
-            onPressed: () async {
-              try {
-                await actions.reverse(view.card.id, entryId);
-              } on InsufficientBalance {
-                messenger.showSnackBar(SnackBar(content: Text(l.cannotUndo)));
-              }
-            },
-          ),
-        ),
-      );
-  }
-
-  Future<void> _confirmDelete(
-    BuildContext context,
-    CardActions actions,
-  ) async {
-    final l = AppLocalizations.of(context)!;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.deleteCardTitle),
-        content: Text(l.deleteCardBody),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true), child: Text(l.delete)),
-        ],
-      ),
-    );
-    if (ok == true && context.mounted) {
-      context.pop();
-      await actions.deleteCard(id);
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -99,7 +45,8 @@ class CardDetailPage extends ConsumerWidget {
           IconButton(
             tooltip: l.delete,
             icon: const Icon(Icons.delete_outline),
-            onPressed: () => _confirmDelete(context, actions),
+            onPressed: () => confirmDeleteCard(context, actions, id,
+                beforeDelete: () => context.pop()),
           ),
         ],
       ),
@@ -113,7 +60,8 @@ class CardDetailPage extends ConsumerWidget {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: view.balance > 0
-                      ? () => _record(context, actions, view, AmountMode.spend)
+                      ? () =>
+                          recordAmount(context, actions, view, AmountMode.spend)
                       : null,
                   icon: const Icon(Icons.remove),
                   label: Text(l.spend),
@@ -123,7 +71,7 @@ class CardDetailPage extends ConsumerWidget {
               Expanded(
                 child: FilledButton.tonalIcon(
                   onPressed: () =>
-                      _record(context, actions, view, AmountMode.topUp),
+                      recordAmount(context, actions, view, AmountMode.topUp),
                   icon: const Icon(Icons.add),
                   label: Text(l.topUp),
                 ),

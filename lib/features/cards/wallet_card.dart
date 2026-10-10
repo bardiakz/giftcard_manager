@@ -64,18 +64,27 @@ class WalletCard extends ConsumerWidget {
     required this.view,
     this.onTap,
     this.dimmed = false,
+    this.onQuickSpend,
+    this.onMore,
   });
 
   final CardView view;
   final VoidCallback? onTap;
   final bool dimmed;
 
+  /// Shows a "record purchase" shortcut button on the card when set.
+  final VoidCallback? onQuickSpend;
+
+  /// Shows a ⋮ button on the card when set.
+  final VoidCallback? onMore;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final card = view.card;
-    final colors =
-        dimmed ? _dimmedColors : cardPalette[card.colorIndex % cardPalette.length];
+    final colors = dimmed
+        ? _dimmedColors
+        : cardPalette[card.colorIndex % cardPalette.length];
     final exp = expiryOf(card.expiry);
     final badge = switch (exp.state) {
       ExpiryState.expired => l.expired,
@@ -146,20 +155,67 @@ class WalletCard extends ConsumerWidget {
                             ),
                           ),
                         ),
+                      if (onMore != null)
+                        IconButton(
+                          tooltip: l.moreOptions,
+                          onPressed: onMore,
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints.tightFor(
+                              width: 32, height: 32),
+                          iconSize: 22,
+                          icon: const Icon(Icons.more_vert, color: _textStrong),
+                        ),
                     ],
                   ),
                   const Spacer(),
-                  Text(
-                    l.balance,
-                    style: text.labelMedium?.copyWith(color: _textSoft),
-                  ),
-                  AnimatedBalance(
-                    minor: view.balance,
-                    currency: card.currency,
-                    style: text.headlineMedium?.copyWith(
-                      color: _textStrong,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l.balance,
+                              style:
+                                  text.labelMedium?.copyWith(color: _textSoft),
+                            ),
+                            AnimatedBalance(
+                              minor: view.balance,
+                              currency: card.currency,
+                              style: text.headlineMedium?.copyWith(
+                                color: _textStrong,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (onQuickSpend != null) ...[
+                        const SizedBox(width: 8),
+                        Tooltip(
+                          message: l.spend,
+                          child: Material(
+                            color: Colors.black.withValues(alpha: 0.28),
+                            shape: const CircleBorder(
+                              side: BorderSide(color: Colors.white54),
+                            ),
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              onTap: onQuickSpend,
+                              child: const SizedBox(
+                                width: 44,
+                                height: 44,
+                                child: Icon(Icons.shopping_bag_outlined,
+                                    color: _textStrong),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 10),
                   ClipRRect(
