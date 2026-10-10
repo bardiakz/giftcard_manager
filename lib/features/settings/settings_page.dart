@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:giftcard_manager/l10n/app_localizations.dart';
 
 import '../../core/auth.dart';
-import '../../core/money.dart';
+import '../../core/languages.dart';
 import '../../data/providers.dart';
+import 'language_picker.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -14,7 +15,6 @@ class SettingsPage extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final s = ref.watch(settingsProvider);
     final n = ref.read(settingsProvider.notifier);
-    final fmt = moneyFormatOf(context, ref);
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -22,24 +22,19 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-            child: Text(l.language, style: text.titleSmall),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(value: 'system', label: Text(l.languageSystem)),
-                  ButtonSegment(value: 'fa', label: Text(l.languageFa)),
-                  ButtonSegment(value: 'en', label: Text(l.languageEn)),
-                ],
-                selected: {s.language},
-                onSelectionChanged: (v) => n.setLanguage(v.first),
-              ),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: Text(l.language),
+            subtitle: Text(
+              s.language == 'system'
+                  ? '${l.languageSystem} · ${nativeLanguageName(resolveDeviceLocale(AppLocalizations.supportedLocales))}'
+                  : nativeLanguageName(Locale(s.language)),
             ),
+            trailing: const Icon(Icons.arrow_drop_down),
+            onTap: () async {
+              final choice = await showLanguagePicker(context, s.language);
+              if (choice != null) n.setLanguage(choice);
+            },
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
@@ -77,24 +72,6 @@ class SettingsPage extends ConsumerWidget {
                 ],
                 selected: {s.themeMode},
                 onSelectionChanged: (v) => n.setThemeMode(v.first),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-            child: Text(l.iranUnit, style: text.titleSmall),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: SegmentedButton<IranUnit>(
-                segments: [
-                  ButtonSegment(value: IranUnit.toman, label: Text(l.toman)),
-                  ButtonSegment(value: IranUnit.rial, label: Text(l.rial)),
-                ],
-                selected: {fmt.unit},
-                onSelectionChanged: (v) => n.setIranUnit(v.first),
               ),
             ),
           ),
