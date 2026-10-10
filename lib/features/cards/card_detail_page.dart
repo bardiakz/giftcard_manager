@@ -138,7 +138,7 @@ class CardDetailPage extends ConsumerWidget {
                   const Icon(Icons.event_outlined, size: 20),
                   const SizedBox(width: 8),
                   Text(l.expiresOn(fmtDate(card.expiry!,
-                      fa: isFa(context), jalali: useJalali(context, ref)))),
+                      fa: isFa(context), jalali: card.isJalali))),
                 ],
               ),
             ),
@@ -179,7 +179,7 @@ class _History extends ConsumerWidget {
     final reversed = reversedIds(entries);
     final scheme = Theme.of(context).colorScheme;
     final fa = isFa(context);
-    final jalali = useJalali(context, ref);
+    final jalali = view.card.isJalali;
 
     if (entries.isEmpty) {
       return Padding(

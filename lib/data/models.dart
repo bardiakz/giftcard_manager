@@ -60,6 +60,7 @@ class GiftCard {
     this.expiry,
     this.hasNumber = false,
     this.hasPin = false,
+    this.calendar = 'gregorian',
   });
 
   final String id;
@@ -70,6 +71,11 @@ class GiftCard {
   final DateTime? expiry;
   final bool hasNumber;
   final bool hasPin;
+
+  /// Calendar this card's dates are shown in: 'gregorian' | 'jalali'.
+  final String calendar;
+
+  bool get isJalali => calendar == 'jalali';
 
   Currency get currency => Currency.byCode(currencyCode);
 }

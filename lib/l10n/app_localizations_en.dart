@@ -174,6 +174,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendar => 'Calendar';
 
   @override
+  String get calendarDefault => 'Default calendar for new cards';
+
+  @override
   String get calendarAuto => 'Automatic';
 
   @override

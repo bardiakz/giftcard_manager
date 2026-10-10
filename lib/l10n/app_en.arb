@@ -67,6 +67,7 @@
   "themeLight": "Light",
   "themeDark": "Dark",
   "calendar": "Calendar",
+  "calendarDefault": "Default calendar for new cards",
   "calendarAuto": "Automatic",
   "calendarShamsi": "Shamsi",
   "calendarGregorian": "Gregorian",

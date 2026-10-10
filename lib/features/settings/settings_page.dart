@@ -36,7 +36,7 @@ class SettingsPage extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-            child: Text(l.calendar, style: text.titleSmall),
+            child: Text(l.calendarDefault, style: text.titleSmall),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),

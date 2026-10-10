@@ -29,6 +29,7 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
   Currency _currency = Currency.irr;
   int _color = 0;
   DateTime? _expiry;
+  String _calendar = 'gregorian';
   bool _hidePin = true;
   bool _loading = false;
   bool _saving = false;
@@ -38,6 +39,8 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
   @override
   void initState() {
     super.initState();
+    // New cards start with the default calendar from Settings.
+    _calendar = ref.read(settingsProvider).calendar;
     if (_editing) {
       _loading = true;
       WidgetsBinding.instance.addPostFrameCallback((_) => _loadExisting());
@@ -78,6 +81,7 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
       _currency = c.currency;
       _color = c.colorIndex;
       _expiry = c.expiry;
+      _calendar = c.calendar;
       _loading = false;
     });
   }
@@ -92,6 +96,7 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
         name: _name.text.trim(),
         colorIndex: _color,
         expiry: _expiry,
+        calendar: _calendar,
         number: _number.text.trim(),
         pin: _pin.text.trim(),
       );
@@ -102,6 +107,7 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
         colorIndex: _color,
         initialMinor: parseInput(_amount.text, _currency, unit)!,
         expiry: _expiry,
+        calendar: _calendar,
         number: _number.text.trim(),
         pin: _pin.text.trim(),
       );
@@ -114,7 +120,7 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
     final l = AppLocalizations.of(context)!;
     final fmt = moneyFormatOf(context, ref);
     final fa = isFa(context);
-    final jalali = useJalali(context, ref);
+    final jalali = _calendar == 'jalali';
     final scheme = Theme.of(context).colorScheme;
     const gap = SizedBox(height: 16);
 
@@ -228,6 +234,25 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
                     ],
                   ),
                   gap,
+                  Text(l.calendar,
+                      style: Theme.of(context).textTheme.labelLarge),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<String>(
+                      segments: [
+                        ButtonSegment(
+                            value: 'gregorian',
+                            label: Text(l.calendarGregorian)),
+                        ButtonSegment(
+                            value: 'jalali', label: Text(l.calendarShamsi)),
+                      ],
+                      selected: {_calendar},
+                      onSelectionChanged: (v) =>
+                          setState(() => _calendar = v.first),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.event_outlined),

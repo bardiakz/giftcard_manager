@@ -173,6 +173,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get calendar => 'تقویم';
 
   @override
+  String get calendarDefault => 'تقویم پیش‌فرض کارت‌های جدید';
+
+  @override
   String get calendarAuto => 'خودکار';
 
   @override

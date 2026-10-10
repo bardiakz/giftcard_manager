@@ -36,7 +36,8 @@ class Settings {
   /// 'system' | 'light' | 'dark'
   final String themeMode;
 
-  /// 'gregorian' (default) | 'jalali'. Independent of the app language.
+  /// Default calendar for NEW cards: 'gregorian' | 'jalali'. Each card keeps
+  /// its own calendar, chosen when it is created.
   final String calendar;
 
   Settings copyWith({
@@ -119,11 +120,6 @@ MoneyFormat moneyFormatOf(BuildContext context, WidgetRef ref) {
   return MoneyFormat(fa: fa, unit: unit);
 }
 
-/// Whether dates are shown in the Shamsi (Jalali) calendar. Off by default;
-/// the user turns it on in Settings.
-bool useJalali(BuildContext context, WidgetRef ref) =>
-    ref.watch(settingsProvider.select((s) => s.calendar == 'jalali'));
-
 // ── Data ─────────────────────────────────────────────────────────────────
 
 class CardsNotifier extends AsyncNotifier<List<CardView>> {
@@ -156,6 +152,7 @@ class CardActions {
     required int colorIndex,
     required int initialMinor,
     DateTime? expiry,
+    String calendar = 'gregorian',
     String number = '',
     String pin = '',
   }) async {
@@ -165,6 +162,7 @@ class CardActions {
       colorIndex: colorIndex,
       initialMinor: initialMinor,
       expiry: expiry,
+      calendar: calendar,
       number: number,
       pin: pin,
     );
@@ -176,6 +174,7 @@ class CardActions {
     required String name,
     required int colorIndex,
     DateTime? expiry,
+    String calendar = 'gregorian',
     String number = '',
     String pin = '',
   }) async {
@@ -184,6 +183,7 @@ class CardActions {
       name: name,
       colorIndex: colorIndex,
       expiry: expiry,
+      calendar: calendar,
       number: number,
       pin: pin,
     );

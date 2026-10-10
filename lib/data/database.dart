@@ -8,8 +8,7 @@ import 'models.dart';
 
 final _rng = Random.secure();
 
-String newId() =>
-    '${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}'
+String newId() => '${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}'
     '${_rng.nextInt(1 << 31).toRadixString(36)}';
 
 /// SQLite persistence. Money lives in an append-only ledger; card numbers and
@@ -24,7 +23,7 @@ class AppDatabase {
     final cipher = await FieldCipher.load();
     final db = await openDatabase(
       p.join(await getDatabasesPath(), 'giftcards.db'),
-      version: 1,
+      version: 2,
       onConfigure: (d) => d.execute('PRAGMA foreign_keys = ON'),
       onCreate: (d, _) async {
         await d.execute('''
@@ -36,6 +35,7 @@ class AppDatabase {
             expiry INTEGER,
             number_enc TEXT NOT NULL DEFAULT '',
             pin_enc TEXT NOT NULL DEFAULT '',
+            calendar TEXT NOT NULL DEFAULT 'gregorian',
             created_at INTEGER NOT NULL
           )''');
         await d.execute('''
@@ -56,13 +56,19 @@ class AppDatabase {
           CREATE TRIGGER entries_immutable BEFORE UPDATE ON entries
           BEGIN SELECT RAISE(ABORT, 'ledger entries are immutable'); END''');
       },
+      onUpgrade: (d, oldVersion, _) async {
+        if (oldVersion < 2) {
+          await d.execute(
+              "ALTER TABLE cards ADD COLUMN calendar TEXT NOT NULL DEFAULT 'gregorian'");
+        }
+      },
     );
     return AppDatabase._(db, cipher);
   }
 
   Future<List<CardView>> cardViews() async {
     final rows = await _db.rawQuery('''
-      SELECT c.id, c.name, c.currency, c.color, c.expiry, c.created_at,
+      SELECT c.id, c.name, c.currency, c.color, c.expiry, c.calendar, c.created_at,
              (c.number_enc != '') AS has_number,
              (c.pin_enc != '') AS has_pin,
              COALESCE(SUM(e.delta), 0) AS balance,
@@ -82,6 +88,7 @@ class AppDatabase {
             name: r['name']! as String,
             currencyCode: r['currency']! as String,
             colorIndex: (r['color']! as num).toInt(),
+            calendar: r['calendar']! as String,
             createdAt: DateTime.fromMillisecondsSinceEpoch(
                 (r['created_at']! as num).toInt()),
             expiry: r['expiry'] == null
@@ -113,6 +120,7 @@ class AppDatabase {
     required int colorIndex,
     required int initialMinor,
     DateTime? expiry,
+    String calendar = 'gregorian',
     String number = '',
     String pin = '',
   }) async {
@@ -127,6 +135,7 @@ class AppDatabase {
         'currency': currencyCode,
         'color': colorIndex,
         'expiry': expiry?.millisecondsSinceEpoch,
+        'calendar': calendar,
         'number_enc': numberEnc,
         'pin_enc': pinEnc,
         'created_at': now.millisecondsSinceEpoch,
@@ -150,6 +159,7 @@ class AppDatabase {
     required String name,
     required int colorIndex,
     DateTime? expiry,
+    String calendar = 'gregorian',
     String number = '',
     String pin = '',
   }) async {
@@ -161,6 +171,7 @@ class AppDatabase {
         'name': name,
         'color': colorIndex,
         'expiry': expiry?.millisecondsSinceEpoch,
+        'calendar': calendar,
         'number_enc': numberEnc,
         'pin_enc': pinEnc,
       },

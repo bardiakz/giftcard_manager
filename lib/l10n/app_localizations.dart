@@ -416,6 +416,12 @@ abstract class AppLocalizations {
   /// **'Calendar'**
   String get calendar;
 
+  /// No description provided for @calendarDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default calendar for new cards'**
+  String get calendarDefault;
+
   /// No description provided for @calendarAuto.
   ///
   /// In en, this message translates to:
