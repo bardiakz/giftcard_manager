@@ -42,16 +42,20 @@ String localDigits(BuildContext context, Object value) =>
 
 String _p2(int n) => n.toString().padLeft(2, '0');
 
-/// Jalali (Persian) date in Persian locale, ISO-style Gregorian otherwise.
-String fmtDate(DateTime d, {required bool fa}) {
-  if (fa) {
+/// Date as Shamsi (Jalali) or Gregorian, in Persian or Latin digits.
+/// [fa] only controls the digits; [jalali] controls the calendar.
+String fmtDate(DateTime d, {required bool fa, required bool jalali}) {
+  final String text;
+  if (jalali) {
     final j = Jalali.fromDateTime(d);
-    return toFaDigits('${j.year}/${_p2(j.month)}/${_p2(j.day)}');
+    text = '${j.year}/${_p2(j.month)}/${_p2(j.day)}';
+  } else {
+    text = '${d.year}-${_p2(d.month)}-${_p2(d.day)}';
   }
-  return '${d.year}-${_p2(d.month)}-${_p2(d.day)}';
+  return fa ? toFaDigits(text) : text;
 }
 
-String fmtDateTime(DateTime d, {required bool fa}) {
+String fmtDateTime(DateTime d, {required bool fa, required bool jalali}) {
   final time = '${_p2(d.hour)}:${_p2(d.minute)}';
-  return '${fmtDate(d, fa: fa)}  ${fa ? toFaDigits(time) : time}';
+  return '${fmtDate(d, fa: fa, jalali: jalali)}  ${fa ? toFaDigits(time) : time}';
 }

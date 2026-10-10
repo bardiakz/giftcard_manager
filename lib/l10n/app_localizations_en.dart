@@ -171,6 +171,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
+  String get calendar => 'Calendar';
+
+  @override
+  String get calendarAuto => 'Automatic';
+
+  @override
+  String get calendarShamsi => 'Shamsi';
+
+  @override
+  String get calendarGregorian => 'Gregorian';
+
+  @override
+  String get today => 'Today';
+
+  @override
   String get iranUnit => 'Iranian currency unit';
 
   @override

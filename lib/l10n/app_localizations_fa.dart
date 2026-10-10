@@ -170,6 +170,21 @@ class AppLocalizationsFa extends AppLocalizations {
   String get themeDark => 'تاریک';
 
   @override
+  String get calendar => 'تقویم';
+
+  @override
+  String get calendarAuto => 'خودکار';
+
+  @override
+  String get calendarShamsi => 'شمسی';
+
+  @override
+  String get calendarGregorian => 'میلادی';
+
+  @override
+  String get today => 'امروز';
+
+  @override
   String get iranUnit => 'واحد پول ایران';
 
   @override

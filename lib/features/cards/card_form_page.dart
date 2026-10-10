@@ -2,125 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:giftcard_manager/l10n/app_localizations.dart';
-import 'package:shamsi_date/shamsi_date.dart';
 
 import '../../core/auth.dart';
 import '../../core/format.dart';
 import '../../core/money.dart';
 import '../../data/providers.dart';
 import 'currency_picker.dart';
+import 'date_picker.dart';
 import 'wallet_card.dart';
-
-const _jalaliMonths = [
-  'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
-  'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند',
-];
-
-/// Jalali date picker in Persian, Material picker otherwise.
-Future<DateTime?> pickExpiry(BuildContext context, DateTime? initial) {
-  final now = DateTime.now();
-  if (!isFa(context)) {
-    return showDatePicker(
-      context: context,
-      initialDate: initial ?? now,
-      firstDate: DateTime(now.year - 1),
-      lastDate: DateTime(now.year + 15),
-    );
-  }
-  return showDialog<DateTime>(
-    context: context,
-    builder: (_) => _JalaliPickerDialog(initial: initial ?? now),
-  );
-}
-
-class _JalaliPickerDialog extends StatefulWidget {
-  const _JalaliPickerDialog({required this.initial});
-  final DateTime initial;
-
-  @override
-  State<_JalaliPickerDialog> createState() => _JalaliPickerDialogState();
-}
-
-class _JalaliPickerDialogState extends State<_JalaliPickerDialog> {
-  late int _y;
-  late int _m;
-  late int _d;
-  late final int _minYear;
-
-  @override
-  void initState() {
-    super.initState();
-    final j = Jalali.fromDateTime(widget.initial);
-    _y = j.year;
-    _m = j.month;
-    _d = j.day;
-    _minYear = Jalali.now().year - 1;
-  }
-
-  int get _daysInMonth => Jalali(_y, _m, 1).monthLength;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    final years = [for (var y = _minYear; y <= _minYear + 16; y++) y];
-    final day = _d.clamp(1, _daysInMonth).toInt();
-
-    return AlertDialog(
-      title: Text(l.expiry),
-      content: Row(
-        children: [
-          Expanded(
-            child: DropdownButtonFormField<int>(
-              key: ValueKey('y$_y'),
-              initialValue: _y.clamp(years.first, years.last).toInt(),
-              items: [
-                for (final y in years)
-                  DropdownMenuItem(
-                      value: y, child: Text(toFaDigits('$y'))),
-              ],
-              onChanged: (v) => setState(() => _y = v!),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            flex: 2,
-            child: DropdownButtonFormField<int>(
-              key: ValueKey('m$_m'),
-              initialValue: _m,
-              isExpanded: true,
-              items: [
-                for (var m = 1; m <= 12; m++)
-                  DropdownMenuItem(value: m, child: Text(_jalaliMonths[m - 1])),
-              ],
-              onChanged: (v) => setState(() => _m = v!),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: DropdownButtonFormField<int>(
-              key: ValueKey('d$_y-$_m-$day'),
-              initialValue: day,
-              items: [
-                for (var d = 1; d <= _daysInMonth; d++)
-                  DropdownMenuItem(value: d, child: Text(toFaDigits('$d'))),
-              ],
-              onChanged: (v) => setState(() => _d = v!),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-            onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
-        FilledButton(
-          onPressed: () =>
-              Navigator.pop(context, Jalali(_y, _m, day).toDateTime()),
-          child: Text(l.save),
-        ),
-      ],
-    );
-  }
-}
 
 class CardFormPage extends ConsumerStatefulWidget {
   const CardFormPage({super.key, this.editId});
@@ -225,6 +114,7 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
     final l = AppLocalizations.of(context)!;
     final fmt = moneyFormatOf(context, ref);
     final fa = isFa(context);
+    final jalali = useJalali(context, ref);
     final scheme = Theme.of(context).colorScheme;
     const gap = SizedBox(height: 16);
 
@@ -241,8 +131,9 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
                     controller: _name,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(labelText: l.cardName),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? l.fieldRequired : null,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? l.fieldRequired
+                        : null,
                   ),
                   gap,
                   InkWell(
@@ -257,9 +148,8 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
                       decoration: InputDecoration(
                         labelText: l.currency,
                         enabled: !_editing,
-                        suffixIcon: _editing
-                            ? null
-                            : const Icon(Icons.arrow_drop_down),
+                        suffixIcon:
+                            _editing ? null : const Icon(Icons.arrow_drop_down),
                       ),
                       child: Text(
                         '${_currency.code} · ${_currency.name(fa)}',
@@ -290,8 +180,8 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
                     gap,
                     TextFormField(
                       controller: _amount,
-                      keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
                         labelText: l.startingCredit,
                         suffixText: fmt.unitLabel(_currency).trim(),
@@ -343,7 +233,8 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
                     leading: const Icon(Icons.event_outlined),
                     title: Text(_expiry == null
                         ? l.noExpiry
-                        : l.expiresOn(fmtDate(_expiry!, fa: fa))),
+                        : l.expiresOn(
+                            fmtDate(_expiry!, fa: fa, jalali: jalali))),
                     trailing: _expiry == null
                         ? null
                         : IconButton(
@@ -351,7 +242,8 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
                             onPressed: () => setState(() => _expiry = null),
                           ),
                     onTap: () async {
-                      final d = await pickExpiry(context, _expiry);
+                      final d =
+                          await pickExpiry(context, _expiry, jalali: jalali);
                       if (d != null) setState(() => _expiry = d);
                     },
                   ),

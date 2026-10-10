@@ -19,6 +19,7 @@ class Settings {
     this.language = 'system',
     this.iranUnit,
     this.themeMode = 'system',
+    this.calendar = 'auto',
     this.appLock = false,
     this.maskBalances = false,
   });
@@ -34,12 +35,16 @@ class Settings {
   /// 'system' | 'light' | 'dark'
   final String themeMode;
 
+  /// 'auto' (Shamsi in Persian, Gregorian otherwise) | 'jalali' | 'gregorian'
+  final String calendar;
+
   Settings copyWith({
     String? language,
     IranUnit? iranUnit,
     bool? appLock,
     bool? maskBalances,
     String? themeMode,
+    String? calendar,
   }) =>
       Settings(
         language: language ?? this.language,
@@ -47,6 +52,7 @@ class Settings {
         appLock: appLock ?? this.appLock,
         maskBalances: maskBalances ?? this.maskBalances,
         themeMode: themeMode ?? this.themeMode,
+        calendar: calendar ?? this.calendar,
       );
 }
 
@@ -62,6 +68,7 @@ class SettingsNotifier extends Notifier<Settings> {
       appLock: _p.getBool('app_lock') ?? false,
       maskBalances: _p.getBool('mask_balances') ?? false,
       themeMode: _p.getString('theme_mode') ?? 'system',
+      calendar: _p.getString('calendar') ?? 'auto',
     );
   }
 
@@ -89,6 +96,11 @@ class SettingsNotifier extends Notifier<Settings> {
     _p.setString('theme_mode', v);
     state = state.copyWith(themeMode: v);
   }
+
+  void setCalendar(String v) {
+    _p.setString('calendar', v);
+    state = state.copyWith(calendar: v);
+  }
 }
 
 final settingsProvider =
@@ -100,6 +112,12 @@ MoneyFormat moneyFormatOf(BuildContext context, WidgetRef ref) {
   final unit = ref.watch(settingsProvider.select((s) => s.iranUnit)) ??
       (fa ? IranUnit.toman : IranUnit.rial);
   return MoneyFormat(fa: fa, unit: unit);
+}
+
+/// Whether dates should be shown in the Shamsi (Jalali) calendar.
+bool useJalali(BuildContext context, WidgetRef ref) {
+  final cal = ref.watch(settingsProvider.select((s) => s.calendar));
+  return cal == 'jalali' || (cal == 'auto' && isFa(context));
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────

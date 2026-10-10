@@ -410,6 +410,36 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get themeDark;
 
+  /// No description provided for @calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get calendar;
+
+  /// No description provided for @calendarAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get calendarAuto;
+
+  /// No description provided for @calendarShamsi.
+  ///
+  /// In en, this message translates to:
+  /// **'Shamsi'**
+  String get calendarShamsi;
+
+  /// No description provided for @calendarGregorian.
+  ///
+  /// In en, this message translates to:
+  /// **'Gregorian'**
+  String get calendarGregorian;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
   /// No description provided for @iranUnit.
   ///
   /// In en, this message translates to:

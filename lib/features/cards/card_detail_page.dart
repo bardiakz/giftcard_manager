@@ -39,8 +39,7 @@ class CardDetailPage extends ConsumerWidget {
               try {
                 await actions.reverse(view.card.id, entryId);
               } on InsufficientBalance {
-                messenger.showSnackBar(
-                    SnackBar(content: Text(l.cannotUndo)));
+                messenger.showSnackBar(SnackBar(content: Text(l.cannotUndo)));
               }
             },
           ),
@@ -63,8 +62,7 @@ class CardDetailPage extends ConsumerWidget {
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(l.cancel)),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l.delete)),
+              onPressed: () => Navigator.pop(ctx, true), child: Text(l.delete)),
         ],
       ),
     );
@@ -139,7 +137,8 @@ class CardDetailPage extends ConsumerWidget {
                 children: [
                   const Icon(Icons.event_outlined, size: 20),
                   const SizedBox(width: 8),
-                  Text(l.expiresOn(fmtDate(card.expiry!, fa: isFa(context)))),
+                  Text(l.expiresOn(fmtDate(card.expiry!,
+                      fa: isFa(context), jalali: useJalali(context, ref)))),
                 ],
               ),
             ),
@@ -180,6 +179,7 @@ class _History extends ConsumerWidget {
     final reversed = reversedIds(entries);
     final scheme = Theme.of(context).colorScheme;
     final fa = isFa(context);
+    final jalali = useJalali(context, ref);
 
     if (entries.isEmpty) {
       return Padding(
@@ -223,12 +223,10 @@ class _History extends ConsumerWidget {
                     size: 20, color: muted ?? scheme.onSecondaryContainer),
               ),
               title: Text(
-                e.note.isEmpty
-                    ? label(e.type)
-                    : '${label(e.type)} · ${e.note}',
+                e.note.isEmpty ? label(e.type) : '${label(e.type)} · ${e.note}',
                 style: style,
               ),
-              subtitle: Text(fmtDateTime(e.createdAt, fa: fa)),
+              subtitle: Text(fmtDateTime(e.createdAt, fa: fa, jalali: jalali)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -238,9 +236,11 @@ class _History extends ConsumerWidget {
                       fontWeight: FontWeight.w600,
                       color: voided
                           ? muted
-                          : (e.delta >= 0 ? (Theme.of(context).brightness == Brightness.dark
-                              ? Colors.green.shade300
-                              : Colors.green.shade800) : null),
+                          : (e.delta >= 0
+                              ? (Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.green.shade300
+                                  : Colors.green.shade800)
+                              : null),
                     ),
                   ),
                   if (canReverse(e, reversed))

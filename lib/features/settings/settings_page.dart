@@ -43,6 +43,26 @@ class SettingsPage extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
+            child: Text(l.calendar, style: text.titleSmall),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<String>(
+                segments: [
+                  ButtonSegment(value: 'auto', label: Text(l.calendarAuto)),
+                  ButtonSegment(value: 'jalali', label: Text(l.calendarShamsi)),
+                  ButtonSegment(
+                      value: 'gregorian', label: Text(l.calendarGregorian)),
+                ],
+                selected: {s.calendar},
+                onSelectionChanged: (v) => n.setCalendar(v.first),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
             child: Text(l.theme, style: text.titleSmall),
           ),
           Padding(
@@ -85,8 +105,7 @@ class SettingsPage extends ConsumerWidget {
               final available = snap.data ?? false;
               return SwitchListTile(
                 title: Text(l.appLock),
-                subtitle:
-                    Text(available ? l.appLockSub : l.appLockUnavailable),
+                subtitle: Text(available ? l.appLockSub : l.appLockUnavailable),
                 value: s.appLock && available,
                 onChanged: available
                     ? (v) async {
