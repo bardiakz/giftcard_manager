@@ -24,8 +24,7 @@ final _router = GoRouter(
           routes: [
             GoRoute(
               path: 'edit',
-              builder: (_, s) =>
-                  CardFormPage(editId: s.pathParameters['id']),
+              builder: (_, s) => CardFormPage(editId: s.pathParameters['id']),
             ),
           ],
         ),
@@ -68,7 +67,7 @@ class GiftCardApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       routerConfig: _router,
       onGenerateTitle: (c) => AppLocalizations.of(c)!.appTitle,
-      locale: lang == 'system' ? null : Locale(lang),
+      locale: lang == null ? null : Locale(lang),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       // Unsupported device languages fall back to Persian.

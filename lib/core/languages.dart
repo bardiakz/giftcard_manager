@@ -42,3 +42,12 @@ Locale resolveDeviceLocale(Iterable<Locale> supported) {
   }
   return const Locale('fa');
 }
+
+/// The language in effect: the saved one if it is still supported, otherwise
+/// the device language (or Persian).
+String effectiveLanguageCode(String? saved, Iterable<Locale> supported) {
+  if (saved != null && supported.any((s) => s.languageCode == saved)) {
+    return saved;
+  }
+  return resolveDeviceLocale(supported).languageCode;
+}

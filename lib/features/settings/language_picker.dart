@@ -3,8 +3,8 @@ import 'package:giftcard_manager/l10n/app_localizations.dart';
 
 import '../../core/languages.dart';
 
-/// Lets the user pick "System" or any supported language. Returns 'system' or
-/// a language code, or null if dismissed. The list is built from
+/// Lets the user pick any supported language. Returns the language code, or
+/// null if dismissed. The list is built from
 /// AppLocalizations.supportedLocales, so a new language shows up here as soon
 /// as its ARB file exists; a search box appears when there are many.
 Future<String?> showLanguagePicker(BuildContext context, String current) =>
@@ -42,7 +42,6 @@ class _LanguageSheetState extends State<_LanguageSheet> {
             loc.languageCode.contains(q) ||
             nativeLanguageName(loc).toLowerCase().contains(q))
         .toList();
-    final deviceName = nativeLanguageName(resolveDeviceLocale(locales));
     final maxHeight = MediaQuery.sizeOf(context).height * 0.85;
 
     Widget check(bool on) =>
@@ -79,14 +78,6 @@ class _LanguageSheetState extends State<_LanguageSheet> {
               child: ListView(
                 shrinkWrap: true,
                 children: [
-                  if (q.isEmpty)
-                    ListTile(
-                      leading: const Icon(Icons.phone_android),
-                      title: Text(l.languageSystem),
-                      subtitle: Text(deviceName),
-                      trailing: check(widget.current == 'system'),
-                      onTap: () => Navigator.pop(context, 'system'),
-                    ),
                   for (final loc in items)
                     ListTile(
                       leading: const Icon(Icons.language),

@@ -16,6 +16,8 @@ class SettingsPage extends ConsumerWidget {
     final s = ref.watch(settingsProvider);
     final n = ref.read(settingsProvider.notifier);
     final text = Theme.of(context).textTheme;
+    final langCode =
+        effectiveLanguageCode(s.language, AppLocalizations.supportedLocales);
 
     return Scaffold(
       appBar: AppBar(title: Text(l.settings)),
@@ -25,14 +27,10 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(l.language),
-            subtitle: Text(
-              s.language == 'system'
-                  ? '${l.languageSystem} · ${nativeLanguageName(resolveDeviceLocale(AppLocalizations.supportedLocales))}'
-                  : nativeLanguageName(Locale(s.language)),
-            ),
+            subtitle: Text(nativeLanguageName(Locale(langCode))),
             trailing: const Icon(Icons.arrow_drop_down),
             onTap: () async {
-              final choice = await showLanguagePicker(context, s.language);
+              final choice = await showLanguagePicker(context, langCode);
               if (choice != null) n.setLanguage(choice);
             },
           ),
@@ -46,10 +44,9 @@ class SettingsPage extends ConsumerWidget {
               width: double.infinity,
               child: SegmentedButton<String>(
                 segments: [
-                  ButtonSegment(value: 'auto', label: Text(l.calendarAuto)),
-                  ButtonSegment(value: 'jalali', label: Text(l.calendarShamsi)),
                   ButtonSegment(
                       value: 'gregorian', label: Text(l.calendarGregorian)),
+                  ButtonSegment(value: 'jalali', label: Text(l.calendarShamsi)),
                 ],
                 selected: {s.calendar},
                 onSelectionChanged: (v) => n.setCalendar(v.first),

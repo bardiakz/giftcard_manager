@@ -16,16 +16,17 @@ final dbProvider = Provider<AppDatabase>((_) => throw UnimplementedError());
 @immutable
 class Settings {
   const Settings({
-    this.language = 'system',
+    this.language,
     this.iranUnit,
     this.themeMode = 'system',
-    this.calendar = 'auto',
+    this.calendar = 'gregorian',
     this.appLock = false,
     this.maskBalances = false,
   });
 
-  /// 'system' | 'fa' | 'en'
-  final String language;
+  /// Language code the user picked, or null = not chosen yet (the device
+  /// language is used if supported, Persian otherwise).
+  final String? language;
 
   /// null = not chosen yet: Toman for Persian, Rial otherwise.
   final IranUnit? iranUnit;
@@ -35,7 +36,7 @@ class Settings {
   /// 'system' | 'light' | 'dark'
   final String themeMode;
 
-  /// 'auto' (Shamsi in Persian, Gregorian otherwise) | 'jalali' | 'gregorian'
+  /// 'gregorian' (default) | 'jalali'. Independent of the app language.
   final String calendar;
 
   Settings copyWith({
@@ -63,12 +64,16 @@ class SettingsNotifier extends Notifier<Settings> {
   Settings build() {
     final u = _p.getString('iran_unit');
     return Settings(
-      language: _p.getString('language') ?? 'system',
+      // Older builds stored 'system'; that now simply means "not chosen".
+      language: (_p.getString('language') == 'system')
+          ? null
+          : _p.getString('language'),
       iranUnit: IranUnit.values.where((e) => e.name == u).firstOrNull,
       appLock: _p.getBool('app_lock') ?? false,
       maskBalances: _p.getBool('mask_balances') ?? false,
       themeMode: _p.getString('theme_mode') ?? 'system',
-      calendar: _p.getString('calendar') ?? 'auto',
+      // Older builds stored 'auto'; Gregorian is the default now.
+      calendar: _p.getString('calendar') == 'jalali' ? 'jalali' : 'gregorian',
     );
   }
 
@@ -114,11 +119,10 @@ MoneyFormat moneyFormatOf(BuildContext context, WidgetRef ref) {
   return MoneyFormat(fa: fa, unit: unit);
 }
 
-/// Whether dates should be shown in the Shamsi (Jalali) calendar.
-bool useJalali(BuildContext context, WidgetRef ref) {
-  final cal = ref.watch(settingsProvider.select((s) => s.calendar));
-  return cal == 'jalali' || (cal == 'auto' && isFa(context));
-}
+/// Whether dates are shown in the Shamsi (Jalali) calendar. Off by default;
+/// the user turns it on in Settings.
+bool useJalali(BuildContext context, WidgetRef ref) =>
+    ref.watch(settingsProvider.select((s) => s.calendar == 'jalali'));
 
 // ── Data ─────────────────────────────────────────────────────────────────
 
