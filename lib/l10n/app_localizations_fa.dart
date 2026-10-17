@@ -9,7 +9,7 @@ class AppLocalizationsFa extends AppLocalizations {
   AppLocalizationsFa([String locale = 'fa']) : super(locale);
 
   @override
-  String get appTitle => 'کارت‌های هدیه';
+  String get appTitle => 'مدیریت کارت هدیه';
 
   @override
   String get noCardsTitle => 'هنوز کارتی ندارید';
