@@ -12,6 +12,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get appTitle => 'مدیریت کارت هدیه';
 
   @override
+  String get myCards => 'کارت‌های من';
+
+  @override
   String get noCardsTitle => 'هنوز کارتی ندارید';
 
   @override

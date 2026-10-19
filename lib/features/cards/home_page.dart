@@ -115,16 +115,22 @@ class _HomePageState extends ConsumerState<HomePage> {
     final l = AppLocalizations.of(context)!;
     final cards = ref.watch(cardsProvider);
 
+    // The empty state has its own "Add card" button, so the floating one only
+    // appears once there is at least one card.
+    final hasCards = cards.valueOrNull?.isNotEmpty ?? false;
+
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/card/new'),
-        icon: const Icon(Icons.add),
-        label: Text(l.addCard),
-      ),
+      floatingActionButton: hasCards
+          ? FloatingActionButton.extended(
+              onPressed: () => context.push('/card/new'),
+              icon: const Icon(Icons.add),
+              label: Text(l.addCard),
+            )
+          : null,
       body: CustomScrollView(
         slivers: [
           SliverAppBar.large(
-            title: Text(l.appTitle),
+            title: Text(l.myCards),
             actions: [
               IconButton(
                 tooltip: l.settings,
@@ -282,15 +288,16 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Padding(
       padding: const EdgeInsets.all(32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.card_giftcard, size: 72, color: scheme.primary),
-          const SizedBox(height: 16),
-          Text(l.noCardsTitle, style: Theme.of(context).textTheme.titleLarge),
+          const _EmptyIllustration(),
+          const SizedBox(height: 28),
+          Text(l.noCardsTitle, style: text.titleLarge),
           const SizedBox(height: 8),
           Text(l.noCardsBody, textAlign: TextAlign.center),
           const SizedBox(height: 24),
@@ -299,7 +306,116 @@ class _EmptyState extends StatelessWidget {
             icon: const Icon(Icons.add),
             label: Text(l.addCard),
           ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.lock_outline, size: 14, color: muted),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  l.privacyNote,
+                  textAlign: TextAlign.center,
+                  style: text.bodySmall?.copyWith(color: muted),
+                ),
+              ),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// Two stacked cards with a half-full balance bar: the same motif as the app
+/// icon, drawn with the brand palette.
+class _EmptyIllustration extends StatelessWidget {
+  const _EmptyIllustration();
+
+  Widget _card(List<Color> colors, {bool details = false}) => Container(
+        width: 116,
+        height: 74,
+        padding: details ? const EdgeInsets.all(12) : null,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          gradient: LinearGradient(
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
+            colors: colors,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colors.last.withValues(alpha: 0.35),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: details
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Container(
+                      width: 20,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.55),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: SizedBox(
+                      height: 6,
+                      child: Stack(
+                        children: [
+                          const Positioned.fill(
+                              child: ColoredBox(color: Colors.white30)),
+                          Positioned.fill(
+                            child: FractionallySizedBox(
+                              alignment: AlignmentDirectional.centerStart,
+                              widthFactor: 0.55,
+                              child: const ColoredBox(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : null,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: 170,
+        height: 120,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Transform.translate(
+              offset: const Offset(-18, -14),
+              child: Transform.rotate(
+                angle: -0.12,
+                child: _card(cardPalette[6]),
+              ),
+            ),
+            Transform.translate(
+              offset: const Offset(10, 8),
+              child: Transform.rotate(
+                angle: 0.10,
+                child: _card(cardPalette[1], details: true),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

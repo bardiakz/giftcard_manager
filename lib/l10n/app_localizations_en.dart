@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'GiftCard Tracker';
 
   @override
+  String get myCards => 'My cards';
+
+  @override
   String get noCardsTitle => 'No cards yet';
 
   @override

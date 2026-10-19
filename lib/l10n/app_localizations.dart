@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'GiftCard Tracker'**
   String get appTitle;
 
+  /// No description provided for @myCards.
+  ///
+  /// In en, this message translates to:
+  /// **'My cards'**
+  String get myCards;
+
   /// No description provided for @noCardsTitle.
   ///
   /// In en, this message translates to:

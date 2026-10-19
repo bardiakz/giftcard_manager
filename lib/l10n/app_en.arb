@@ -1,6 +1,7 @@
 {
   "@@locale": "en",
   "appTitle": "GiftCard Tracker",
+  "myCards": "My cards",
   "noCardsTitle": "No cards yet",
   "noCardsBody": "Add your first gift card and always know what's left on it.",
   "addCard": "Add card",

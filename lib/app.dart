@@ -35,7 +35,7 @@ final _router = GoRouter(
 
 ThemeData _theme(Brightness brightness) {
   final scheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF0F766E),
+    seedColor: const Color(0xFF4F46E5), // indigo, same family as the app icon
     brightness: brightness,
   );
   return ThemeData(

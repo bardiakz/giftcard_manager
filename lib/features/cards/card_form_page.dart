@@ -28,7 +28,7 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
   final _amount = TextEditingController();
 
   Currency _currency = Currency.irr;
-  int _color = 0;
+  int _color = 1; // indigo, the brand colour (index into cardPalette)
   DateTime? _expiry;
   String _calendar = 'gregorian';
   bool _hidePin = true;
