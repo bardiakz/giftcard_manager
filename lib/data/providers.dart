@@ -7,12 +7,12 @@ import '../core/format.dart';
 import '../core/money.dart';
 import 'database.dart';
 import 'models.dart';
+import 'dart:async';
 
 final prefsProvider =
     Provider<SharedPreferences>((_) => throw UnimplementedError());
 final dbProvider = Provider<AppDatabase>((_) => throw UnimplementedError());
-final presetProvider =
-    Provider<AppPreset>((_) => AppPreset.fromEnvironment());
+final presetProvider = Provider<AppPreset>((_) => AppPreset.fromEnvironment());
 
 // ── Settings ─────────────────────────────────────────────────────────────
 
@@ -266,3 +266,47 @@ class CardActions {
 }
 
 final actionsProvider = Provider<CardActions>(CardActions.new);
+
+/// Per-card override of the balance visibility, kept for this session only.
+/// A card without an entry follows the global "Hide balances" setting.
+class BalanceVisibilityNotifier extends Notifier<Map<String, bool>> {
+  static const _autoHide = Duration(seconds: 10);
+  final _timers = <String, Timer>{};
+
+  @override
+  Map<String, bool> build() {
+    // Changing the global setting starts everything fresh.
+    ref.listen(settingsProvider.select((s) => s.maskBalances), (_, __) {
+      for (final t in _timers.values) {
+        t.cancel();
+      }
+      _timers.clear();
+      state = const {};
+    });
+    ref.onDispose(() {
+      for (final t in _timers.values) {
+        t.cancel();
+      }
+    });
+    return const {};
+  }
+
+  /// Flips one card. A balance that is hidden by default hides itself again
+  /// after a few seconds.
+  void toggle(String id) {
+    final globalMask = ref.read(settingsProvider).maskBalances;
+    final show = !(state[id] ?? !globalMask);
+    _timers.remove(id)?.cancel();
+    state = {...state, id: show};
+    if (show && globalMask) {
+      _timers[id] = Timer(_autoHide, () {
+        _timers.remove(id);
+        state = {...state}..remove(id);
+      });
+    }
+  }
+}
+
+final balanceVisibilityProvider =
+    NotifierProvider<BalanceVisibilityNotifier, Map<String, bool>>(
+        BalanceVisibilityNotifier.new);

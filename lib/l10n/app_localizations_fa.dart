@@ -73,6 +73,16 @@ class AppLocalizationsFa extends AppLocalizations {
   String get moreOptions => 'گزینه‌های بیشتر';
 
   @override
+  String get showBalance => 'نمایش موجودی';
+
+  @override
+  String get hideBalance => 'پنهان کردن موجودی';
+
+  @override
+  String get noScreenLockNotice =>
+      'قفل صفحه تنظیم نشده است و اطلاعات کارت محافظت نمی‌شود';
+
+  @override
   String get balance => 'موجودی';
 
   @override

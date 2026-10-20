@@ -224,6 +224,24 @@ abstract class AppLocalizations {
   /// **'More options'**
   String get moreOptions;
 
+  /// No description provided for @showBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Show balance'**
+  String get showBalance;
+
+  /// No description provided for @hideBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide balance'**
+  String get hideBalance;
+
+  /// No description provided for @noScreenLockNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'No screen lock is set up, so card details can\'t be protected'**
+  String get noScreenLockNotice;
+
   /// No description provided for @balance.
   ///
   /// In en, this message translates to:

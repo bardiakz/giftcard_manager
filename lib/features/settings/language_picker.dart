@@ -33,7 +33,7 @@ class _LanguageSheetState extends State<_LanguageSheet> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
-    final locales = AppLocalizations.supportedLocales;
+    const locales = AppLocalizations.supportedLocales;
     final showSearch = locales.length > _searchThreshold;
     final q = _query.trim().toLowerCase();
     final items = locales

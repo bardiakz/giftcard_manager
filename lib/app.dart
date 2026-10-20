@@ -24,7 +24,8 @@ final _router = GoRouter(
           routes: [
             GoRoute(
               path: 'edit',
-              builder: (_, s) => CardFormPage(editId: s.pathParameters['id']),
+              builder: (_, s) =>
+                  CardFormPage(editId: s.pathParameters['id']),
             ),
           ],
         ),
@@ -35,7 +36,7 @@ final _router = GoRouter(
 
 ThemeData _theme(Brightness brightness) {
   final scheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF4F46E5), // indigo, same family as the app icon
+    seedColor: const Color(0xFF4F46E5),
     brightness: brightness,
   );
   return ThemeData(

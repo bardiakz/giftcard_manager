@@ -60,8 +60,7 @@ class CardDetailPage extends ConsumerWidget {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: view.balance > 0
-                      ? () =>
-                          recordAmount(context, actions, view, AmountMode.spend)
+                      ? () => recordAmount(context, actions, view, AmountMode.spend)
                       : null,
                   icon: const Icon(Icons.remove),
                   label: Text(l.spend),
@@ -171,7 +170,9 @@ class _History extends ConsumerWidget {
                     size: 20, color: muted ?? scheme.onSecondaryContainer),
               ),
               title: Text(
-                e.note.isEmpty ? label(e.type) : '${label(e.type)} · ${e.note}',
+                e.note.isEmpty
+                    ? label(e.type)
+                    : '${label(e.type)} · ${e.note}',
                 style: style,
               ),
               subtitle: Text(fmtDateTime(e.createdAt, fa: fa, jalali: jalali)),
@@ -184,11 +185,9 @@ class _History extends ConsumerWidget {
                       fontWeight: FontWeight.w600,
                       color: voided
                           ? muted
-                          : (e.delta >= 0
-                              ? (Theme.of(context).brightness == Brightness.dark
-                                  ? Colors.green.shade300
-                                  : Colors.green.shade800)
-                              : null),
+                          : (e.delta >= 0 ? (Theme.of(context).brightness == Brightness.dark
+                              ? Colors.green.shade300
+                              : Colors.green.shade800) : null),
                     ),
                   ),
                   if (canReverse(e, reversed))

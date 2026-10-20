@@ -74,6 +74,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreOptions => 'More options';
 
   @override
+  String get showBalance => 'Show balance';
+
+  @override
+  String get hideBalance => 'Hide balance';
+
+  @override
+  String get noScreenLockNotice =>
+      'No screen lock is set up, so card details can\'t be protected';
+
+  @override
   String get balance => 'Balance';
 
   @override

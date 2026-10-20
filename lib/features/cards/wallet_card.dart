@@ -34,22 +34,32 @@ class AnimatedBalance extends ConsumerWidget {
     required this.minor,
     required this.currency,
     this.style,
+    this.cardId,
   });
 
   final int minor;
   final Currency currency;
   final TextStyle? style;
 
+  /// When set, this card's own show/hide state (the eye button) applies.
+  final String? cardId;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fmt = moneyFormatOf(context, ref);
-    final mask = ref.watch(settingsProvider.select((s) => s.maskBalances));
+    final globalMask =
+        ref.watch(settingsProvider.select((s) => s.maskBalances));
+    final id = cardId;
+    final visible = id == null
+        ? !globalMask
+        : ref.watch(
+            balanceVisibilityProvider.select((m) => m[id] ?? !globalMask));
     return TweenAnimationBuilder<int>(
       tween: IntTween(end: minor),
       duration: const Duration(milliseconds: 600),
       curve: Curves.easeOutCubic,
       builder: (_, value, __) => Text(
-        mask ? '••••••' : fmt.format(value, currency),
+        visible ? fmt.format(value, currency) : '••••••',
         style: style,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -82,9 +92,8 @@ class WalletCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final card = view.card;
-    final colors = dimmed
-        ? _dimmedColors
-        : cardPalette[card.colorIndex % cardPalette.length];
+    final colors =
+        dimmed ? _dimmedColors : cardPalette[card.colorIndex % cardPalette.length];
     final exp = expiryOf(card.expiry);
     final badge = switch (exp.state) {
       ExpiryState.expired => l.expired,
@@ -92,6 +101,10 @@ class WalletCard extends ConsumerWidget {
       ExpiryState.soon => l.expiresInDays(localDigits(context, exp.days)),
       _ => null,
     };
+    final globalMask =
+        ref.watch(settingsProvider.select((s) => s.maskBalances));
+    final balanceVisible = ref.watch(
+        balanceVisibilityProvider.select((m) => m[card.id] ?? !globalMask));
     final text = Theme.of(context).textTheme;
     const radius = BorderRadius.all(Radius.circular(24));
 
@@ -100,7 +113,7 @@ class WalletCard extends ConsumerWidget {
       child: Material(
         color: Colors.transparent,
         child: Ink(
-          height: 168,
+          height: 172,
           decoration: BoxDecoration(
             borderRadius: radius,
             gradient: LinearGradient(
@@ -164,7 +177,8 @@ class WalletCard extends ConsumerWidget {
                           constraints: const BoxConstraints.tightFor(
                               width: 32, height: 32),
                           iconSize: 22,
-                          icon: const Icon(Icons.more_vert, color: _textStrong),
+                          icon: const Icon(Icons.more_vert,
+                              color: _textStrong),
                         ),
                     ],
                   ),
@@ -177,14 +191,40 @@ class WalletCard extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              l.balance,
-                              style:
-                                  text.labelMedium?.copyWith(color: _textSoft),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  l.balance,
+                                  style: text.labelMedium
+                                      ?.copyWith(color: _textSoft),
+                                ),
+                                const SizedBox(width: 2),
+                                IconButton(
+                                  tooltip: balanceVisible
+                                      ? l.hideBalance
+                                      : l.showBalance,
+                                  onPressed: () => ref
+                                      .read(balanceVisibilityProvider.notifier)
+                                      .toggle(card.id),
+                                  visualDensity: VisualDensity.compact,
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints.tightFor(
+                                      width: 32, height: 20),
+                                  iconSize: 18,
+                                  icon: Icon(
+                                    balanceVisible
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    color: _textSoft,
+                                  ),
+                                ),
+                              ],
                             ),
                             AnimatedBalance(
                               minor: view.balance,
                               currency: card.currency,
+                              cardId: card.id,
                               style: text.headlineMedium?.copyWith(
                                 color: _textStrong,
                                 fontWeight: FontWeight.w700,

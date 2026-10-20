@@ -26,7 +26,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   /// Drag and drop within the active cards. Used-up cards stay below them.
   void _onReorder(List<CardView> allActive, List<CardView> allSpent,
       int oldIndex, int newIndex) {
-    if (newIndex > oldIndex) newIndex -= 1;
     final ids = _ids(allActive);
     ids.insert(newIndex, ids.removeAt(oldIndex));
     ref.read(actionsProvider).reorder([...ids, ..._ids(allSpent)]);
@@ -189,7 +188,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     sliver: SliverReorderableList(
                       itemCount: active.length,
-                      onReorder: (o, n) =>
+                      onReorderItem: (o, n) =>
                           _onReorder(allActive, allSpent, o, n),
                       proxyDecorator: (child, index, animation) =>
                           ScaleTransition(
@@ -369,17 +368,17 @@ class _EmptyIllustration extends StatelessWidget {
                   const Spacer(),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(3),
-                    child: SizedBox(
+                    child: const SizedBox(
                       height: 6,
                       child: Stack(
                         children: [
-                          const Positioned.fill(
+                          Positioned.fill(
                               child: ColoredBox(color: Colors.white30)),
                           Positioned.fill(
                             child: FractionallySizedBox(
                               alignment: AlignmentDirectional.centerStart,
                               widthFactor: 0.55,
-                              child: const ColoredBox(color: Colors.white),
+                              child: ColoredBox(color: Colors.white),
                             ),
                           ),
                         ],
