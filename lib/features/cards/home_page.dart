@@ -252,26 +252,62 @@ class _Totals extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final fmt = moneyFormatOf(context, ref);
-    final mask = ref.watch(settingsProvider.select((s) => s.maskBalances));
+    final globalMask =
+        ref.watch(settingsProvider.select((s) => s.maskBalances));
+    final visible = ref.watch(balanceVisibilityProvider
+        .select((m) => m[totalBalanceId] ?? !globalMask));
     final totals = <Currency, int>{};
     for (final v in cards) {
       totals.update(v.card.currency, (t) => t + v.balance,
           ifAbsent: () => v.balance);
     }
+    final text = Theme.of(context).textTheme;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l.total, style: Theme.of(context).textTheme.labelLarge),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l.total, style: text.labelLarge),
+              const SizedBox(width: 4),
+              IconButton(
+                tooltip: visible ? l.hideBalance : l.showBalance,
+                onPressed: () => ref
+                    .read(balanceVisibilityProvider.notifier)
+                    .toggle(totalBalanceId),
+                visualDensity: VisualDensity.compact,
+                style: IconButton.styleFrom(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  minimumSize: Size.zero,
+                  padding: EdgeInsets.zero,
+                ),
+                constraints:
+                    const BoxConstraints.tightFor(width: 32, height: 20),
+                iconSize: 18,
+                icon: Icon(
+                  visible
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: muted,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
               for (final e in totals.entries)
-                Chip(
-                  label: Text(mask ? '••••••' : fmt.format(e.value, e.key)),
+                ActionChip(
+                  tooltip: visible ? l.hideBalance : l.showBalance,
+                  onPressed: () => ref
+                      .read(balanceVisibilityProvider.notifier)
+                      .toggle(totalBalanceId),
+                  label: Text(visible ? fmt.format(e.value, e.key) : '••••••'),
                 ),
             ],
           ),

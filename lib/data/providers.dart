@@ -267,8 +267,11 @@ class CardActions {
 
 final actionsProvider = Provider<CardActions>(CardActions.new);
 
-/// Per-card override of the balance visibility, kept for this session only.
-/// A card without an entry follows the global "Hide balances" setting.
+/// Balance visibility key used for the total balance override.
+const totalBalanceId = '__total__';
+
+/// Per-card and total override of balance visibility, kept for this session only.
+/// An id without an entry follows the global "Hide balances" setting.
 class BalanceVisibilityNotifier extends Notifier<Map<String, bool>> {
   static const _autoHide = Duration(seconds: 10);
   final _timers = <String, Timer>{};
