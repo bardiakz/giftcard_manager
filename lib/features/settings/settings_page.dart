@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:giftcard_manager/l10n/app_localizations.dart';
 
 import '../../core/auth.dart';
+import '../../core/format.dart';
 import '../../core/languages.dart';
+import '../../core/money.dart';
 import '../../data/providers.dart';
+import '../cards/currency_picker.dart';
 import 'language_picker.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -32,6 +35,21 @@ class SettingsPage extends ConsumerWidget {
             onTap: () async {
               final choice = await showLanguagePicker(context, langCode);
               if (choice != null) n.setLanguage(choice);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.paid_outlined),
+            title: Text(l.currency),
+            subtitle: Text(
+              '${Currency.byCode(s.defaultCurrency).code} · ${Currency.byCode(s.defaultCurrency).name(isFa(context))}',
+            ),
+            trailing: const Icon(Icons.arrow_drop_down),
+            onTap: () async {
+              final choice = await pickCurrency(
+                context,
+                Currency.byCode(s.defaultCurrency),
+              );
+              if (choice != null) n.setDefaultCurrency(choice.code);
             },
           ),
           Padding(

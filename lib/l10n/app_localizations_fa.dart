@@ -19,7 +19,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get noCardsBody =>
-      'اولین کارت هدیه‌تان را اضافه کنید تا همیشه بدانید چقدر اعتبار باقی مانده است.';
+      'اولین کارت را اضافه کنید تا اعتبار باقی مانده را مدیریت کنید.';
 
   @override
   String get addCard => 'افزودن کارت';

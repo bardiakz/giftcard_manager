@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/app_preset.dart';
 import '../core/format.dart';
 import '../core/money.dart';
 import 'database.dart';
@@ -10,6 +11,8 @@ import 'models.dart';
 final prefsProvider =
     Provider<SharedPreferences>((_) => throw UnimplementedError());
 final dbProvider = Provider<AppDatabase>((_) => throw UnimplementedError());
+final presetProvider =
+    Provider<AppPreset>((_) => AppPreset.fromEnvironment());
 
 // ── Settings ─────────────────────────────────────────────────────────────
 
@@ -18,18 +21,22 @@ class Settings {
   const Settings({
     this.language,
     this.iranUnit,
+    this.defaultCurrency = 'USD',
     this.themeMode = 'system',
     this.calendar = 'gregorian',
     this.appLock = false,
     this.maskBalances = false,
   });
 
-  /// Language code the user picked, or null = not chosen yet (the device
-  /// language is used if supported, Persian otherwise).
+  /// Language code the user picked, or null = not chosen yet.
   final String? language;
 
   /// null = not chosen yet: Toman for Persian, Rial otherwise.
   final IranUnit? iranUnit;
+
+  /// Default currency for new cards: 'USD', 'IRR', etc.
+  final String defaultCurrency;
+
   final bool appLock;
   final bool maskBalances;
 
@@ -43,6 +50,7 @@ class Settings {
   Settings copyWith({
     String? language,
     IranUnit? iranUnit,
+    String? defaultCurrency,
     bool? appLock,
     bool? maskBalances,
     String? themeMode,
@@ -51,6 +59,7 @@ class Settings {
       Settings(
         language: language ?? this.language,
         iranUnit: iranUnit ?? this.iranUnit,
+        defaultCurrency: defaultCurrency ?? this.defaultCurrency,
         appLock: appLock ?? this.appLock,
         maskBalances: maskBalances ?? this.maskBalances,
         themeMode: themeMode ?? this.themeMode,
@@ -60,21 +69,31 @@ class Settings {
 
 class SettingsNotifier extends Notifier<Settings> {
   SharedPreferences get _p => ref.read(prefsProvider);
+  AppPreset get _preset => ref.read(presetProvider);
 
   @override
   Settings build() {
     final u = _p.getString('iran_unit');
+    final savedLang = _p.getString('language');
+    final savedCalendar = _p.getString('calendar');
+
     return Settings(
       // Older builds stored 'system'; that now simply means "not chosen".
-      language: (_p.getString('language') == 'system')
+      language: (savedLang == 'system')
           ? null
-          : _p.getString('language'),
-      iranUnit: IranUnit.values.where((e) => e.name == u).firstOrNull,
+          : (savedLang ?? _preset.defaultLanguage),
+      iranUnit: IranUnit.values.where((e) => e.name == u).firstOrNull ??
+          _preset.defaultIranUnit,
+      defaultCurrency:
+          _p.getString('default_currency') ?? _preset.defaultCurrency,
       appLock: _p.getBool('app_lock') ?? false,
       maskBalances: _p.getBool('mask_balances') ?? false,
       themeMode: _p.getString('theme_mode') ?? 'system',
-      // Older builds stored 'auto'; Gregorian is the default now.
-      calendar: _p.getString('calendar') == 'jalali' ? 'jalali' : 'gregorian',
+      calendar: savedCalendar == 'jalali'
+          ? 'jalali'
+          : (savedCalendar == 'gregorian'
+              ? 'gregorian'
+              : _preset.defaultCalendar),
     );
   }
 
@@ -83,9 +102,22 @@ class SettingsNotifier extends Notifier<Settings> {
     state = state.copyWith(language: v);
   }
 
+  void setDefaultCurrency(String v) {
+    _p.setString('default_currency', v);
+    state = state.copyWith(defaultCurrency: v);
+  }
+
   void setIranUnit(IranUnit v) {
     _p.setString('iran_unit', v.name);
     state = state.copyWith(iranUnit: v);
+  }
+
+  void resetToPreset() {
+    _p.remove('language');
+    _p.remove('iran_unit');
+    _p.remove('default_currency');
+    _p.remove('calendar');
+    ref.invalidateSelf();
   }
 
   void setAppLock(bool v) {

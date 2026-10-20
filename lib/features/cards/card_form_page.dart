@@ -40,8 +40,10 @@ class _CardFormPageState extends ConsumerState<CardFormPage> {
   @override
   void initState() {
     super.initState();
-    // New cards start with the default calendar from Settings.
-    _calendar = ref.read(settingsProvider).calendar;
+    // New cards start with the default calendar and currency from Settings.
+    final settings = ref.read(settingsProvider);
+    _calendar = settings.calendar;
+    _currency = Currency.byCode(settings.defaultCurrency);
     if (_editing) {
       _loading = true;
       WidgetsBinding.instance.addPostFrameCallback((_) => _loadExisting());
