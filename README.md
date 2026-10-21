@@ -1,6 +1,6 @@
 # Gift Card Manager
 
-> Private, 100% offline gift card balance tracker.
+> Private, 100% offline card balance tracker.
 
 <p align="center">
   <img src="assets/store/feature_graphic_1024x500.png" alt="Gift Card Manager" width="100%" />
@@ -30,60 +30,6 @@ A clean, distraction-free utility to track balances, purchases, and expiration d
   <img src="screenshots/en/03_card_details.png" width="23%" alt="Card Details" />
   <img src="screenshots/en/04_settings.png" width="23%" alt="Settings" />
 </p>
-
----
-
-## Tech Stack
-
-- **Framework:** Flutter (Dart 3)
-- **State Management:** Riverpod (`flutter_riverpod`)
-- **Navigation:** GoRouter
-- **Database:** SQLite (`sqflite`) with field-level cipher
-- **Security:** `flutter_secure_storage`, `cryptography`, `local_auth`
-- **Typography:** Vazirmatn
-
----
-
-## Building from Source
-
-Presets configure market defaults (language, currency, calendar) at compile time via `--dart-define-from-file`:
-
-### Google Play Store (English · USD · Gregorian)
-```bash
-flutter build appbundle --dart-define-from-file=config/playstore.json
-```
-
-### Cafe Bazaar (Persian · Toman · Jalali)
-```bash
-flutter build apk --dart-define-from-file=config/bazaar.json
-```
-
-### Myket (Persian · Toman · Jalali)
-```bash
-flutter build apk --dart-define-from-file=config/myket.json
-```
-
-### Development
-```bash
-flutter run
-```
-
----
-
-## Release Signing
-
-Release builds check for `android/key.properties`:
-
-```properties
-storePassword=your_store_password
-keyPassword=your_key_password
-keyAlias=your_key_alias
-storeFile=/path/to/upload-keystore.jks
-```
-
-*Note: `key.properties` and `*.jks`/`*.keystore` files are strictly ignored by git and must never be committed.*
-
----
 
 ## Privacy Policy
 
