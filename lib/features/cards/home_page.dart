@@ -434,11 +434,13 @@ class _EmptyIllustration extends StatelessWidget {
         height: 120,
         child: Stack(
           alignment: Alignment.center,
+          clipBehavior: Clip.none,
           children: [
             Transform.translate(
               offset: const Offset(-18, -14),
               child: Transform.rotate(
                 angle: -0.12,
+                filterQuality: FilterQuality.high,
                 child: _card(cardPalette[6]),
               ),
             ),
@@ -446,6 +448,7 @@ class _EmptyIllustration extends StatelessWidget {
               offset: const Offset(10, 8),
               child: Transform.rotate(
                 angle: 0.10,
+                filterQuality: FilterQuality.high,
                 child: _card(cardPalette[1], details: true),
               ),
             ),
