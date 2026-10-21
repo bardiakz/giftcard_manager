@@ -46,4 +46,12 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
-android/key.properties
+
+# Keystores and sensitive signing configs
+*.keystore
+*.jks
+*.p12
+*.p8
+*.key
+key.properties
+**/key.properties
